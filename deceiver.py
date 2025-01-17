@@ -43,7 +43,7 @@ ADVANCED_EXTENSIONS = [
 ]
 
 # Delimiter sets
-BASIC_DELIMITERS = ["/", ";", "%00", "!","%23"]
+BASIC_DELIMITERS = ["/", ";", "%00", "!", "%23"]
 ADVANCED_DELIMITERS = [
     "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";", "<", "=", ">", "?",
     "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~", "%21", "%22", "%23", "%24", "%25", "%26",
@@ -100,7 +100,6 @@ def simplify_url(url: str) -> str:
     simplified_url = f"{scheme}://{subdomain}{domain}.{suffix}"
     return simplified_url
 
-
 ###############################################################################
 # Logging helper
 ###############################################################################
@@ -132,7 +131,6 @@ def log(level: str, message: str) -> None:
     else:
         print(f"{prefix} {message}")
 
-
 ###############################################################################
 # Core logic helpers
 ###############################################################################
@@ -151,7 +149,6 @@ def load_cookies(cookie_file: str) -> Dict[str, str]:
     except json.JSONDecodeError:
         log("ERROR", f"Invalid JSON format in cookie file '{cookie_file}'.")
         return {}
-
 
 def fetch_url(url: str, cookies: Dict[str, str], allow_error_status: bool = False) -> Tuple[str, Dict[str, str], int]:
     """
@@ -179,16 +176,13 @@ def fetch_url(url: str, cookies: Dict[str, str], allow_error_status: bool = Fals
         log("ERROR", f"Failed to fetch {url}: {e}")
         return "", {}, status_code
 
-
 def detect_markers(content: str, markers: List[str]) -> bool:
     """Check if content contains any predefined markers."""
     return any(marker in content for marker in markers)
 
-
 def hash_content(content: str) -> str:
     """Generate a SHA-256 hash of the provided content."""
     return hashlib.sha256(content.encode('utf-8')).hexdigest()
-
 
 def is_hit(headers: Dict[str, str]) -> bool:
     """
@@ -209,6 +203,20 @@ def is_hit(headers: Dict[str, str]) -> bool:
         or ("hit" in x_status)
     )
 
+###############################################################################
+# Helper: Compare content sizes (±5% threshold)
+###############################################################################
+def is_similar_size(base_content: str, new_content: str, threshold: float = 0.05) -> bool:
+    """
+    Returns True if the size of new_content is within 'threshold' (default 5%)
+    of the size of base_content.
+    """
+    base_len = len(base_content)
+    new_len = len(new_content)
+    if base_len == 0:  # edge case if base_content was empty
+        return False
+    diff = abs(base_len - new_len)
+    return diff <= base_len * threshold
 
 ###############################################################################
 # Normalization checks
@@ -239,7 +247,6 @@ def run_normalization_checks(base_url: str, norm_endpoints: List[str]) -> List[s
 
     return hit_endpoints
 
-
 ###############################################################################
 # Cache-buster logic
 ###############################################################################
@@ -253,7 +260,6 @@ def generate_cachebuster_value() -> str:
     CB_COUNTER += 1
     return str(CB_COUNTER)
 
-
 def add_cache_buster(url: str, cb_value: str) -> str:
     """
     Append ?cb=<value> or &cb=<value> to the URL, depending on whether '?' is present.
@@ -261,39 +267,59 @@ def add_cache_buster(url: str, cb_value: str) -> str:
     delimiter = "&" if "?" in url else "?"
     return f"{url}{delimiter}cb={cb_value}"
 
-
 ###############################################################################
 # Supplemental Tests
 ###############################################################################
-def run_supplemental_test(url: str, cookies: Dict[str, str]) -> None:
+def run_supplemental_test(url: str, cookies: Dict[str, str], base_content: str) -> None:
     """
     Fetch the given URL with cookies and without cookies, compare results.
-    If identical, log a potential cache vulnerability.
+    To declare a vulnerability, we require:
+      1) A cache hit in either response's headers (with or without cookies),
+      2) EITHER a marker presence with identical content, OR
+         identical content + ~same size if no marker.
     """
     log("INFO", f"Supplemental test -> {url}")
 
-    content_with, _, status_with = fetch_url(url, cookies, allow_error_status=True)
+    content_with, headers_with, status_with = fetch_url(url, cookies, allow_error_status=True)
     if status_with != 200:
         log("WARNING", f"Skipping (with cookies) due to non-200 status: {status_with}")
         return
 
-    content_without, _, status_without = fetch_url(url, {}, allow_error_status=True)
+    content_without, headers_without, status_without = fetch_url(url, {}, allow_error_status=True)
     if status_without != 200:
         log("WARNING", f"Skipping (without cookies) due to non-200 status: {status_without}")
         return
 
-    if content_with == content_without:
-        log("VULNERABILITY", f"Potential cache vulnerability detected at {url}")
-    else:
-        log("INFO", f"No supplemental cache vulnerability for {url}")
+    # Check for cache hit in either response
+    if not (is_hit(headers_with) or is_hit(headers_without)):
+        log("INFO", f"No cache HIT for {url}; skipping vulnerability check.")
+        return
 
+    # Responses are both 200, and at least one response indicated a cache hit
+    # Next, do marker-based or size-based logic:
+    marker_with = detect_markers(content_with, MARKERS)
+    marker_without = detect_markers(content_without, MARKERS)
+
+    if marker_with or marker_without:
+        # Marker-based => do we have identical content?
+        if content_with == content_without:
+            log("VULNERABILITY", f"Potential cache vulnerability detected at {url} (marker-based).")
+        else:
+            log("INFO", f"No vulnerability for {url}: markers found but responses differ.")
+    else:
+        # No markers => do we have identical content AND similar size to base?
+        if content_with == content_without and is_similar_size(base_content, content_with):
+            log("VULNERABILITY", f"Potential cache vulnerability detected at {url} (size-based).")
+        else:
+            log("INFO", f"No supplemental cache vulnerability for {url} (size-based check failed).")
 
 def test_supplemental_payloads(
     base_domain: str,
     original_path: str,
     cache_hit_endpoints: List[str],
     delimiters: List[str],
-    cookies: Dict[str, str]
+    cookies: Dict[str, str],
+    base_content: str
 ) -> None:
     """
     Perform extra tests if any normalization endpoint was a cache hit.
@@ -313,14 +339,13 @@ def test_supplemental_payloads(
                 cb_a = generate_cachebuster_value()
                 test_url_a = f"{domain}/{endpoint}{delim}{payload}{clean_path}"
                 test_url_a = add_cache_buster(test_url_a, cb_a)
-                run_supplemental_test(test_url_a, cookies)
+                run_supplemental_test(test_url_a, cookies, base_content)
 
                 # B) <domain>/<clean_path><delim><payload><endpoint>
                 cb_b = generate_cachebuster_value()
                 test_url_b = f"{domain}/{clean_path}{delim}{payload}{endpoint}"
                 test_url_b = add_cache_buster(test_url_b, cb_b)
-                run_supplemental_test(test_url_b, cookies)
-
+                run_supplemental_test(test_url_b, cookies, base_content)
 
 ###############################################################################
 # Main cache-deception testing routine
@@ -337,6 +362,9 @@ def test_cache_deception(
       1) Base fetch (twice) to see if there's any immediate difference or marker
       2) Delimiter + extension tests (with unique cachebuster each time)
       3) Supplemental tests if any normalization endpoints had a cache hit
+
+    We require an actual cache HIT (is_hit()==True) plus either the marker check
+    or the size-based check before logging a vulnerability.
     """
     log("INFO", f"Testing base URL: {base_url}")
 
@@ -357,10 +385,9 @@ def test_cache_deception(
             log("INFO", f"No difference or markers found for {base_url}. Skipping further tests.")
             return
         else:
-            # MODIFICATION #1: Highlight that markers were detected in GREEN
+            # Markers detected in base content
             log("WARNING", colored(f"Markers detected; proceeding with deeper testing for {base_url}.", "green"))
     else:
-        # MODIFICATION #2: Highlight that a deviation was detected in GREEN
         log("INFO", colored(f"Deviation detected between first and second requests for {base_url}. Proceeding.", "green"))
 
     # Step 2 - Delimiters + Extensions checks
@@ -371,21 +398,38 @@ def test_cache_deception(
             test_url = add_cache_buster(test_url, cb_val)
 
             log("INFO", f"Testing {test_url} (with cookies).")
-            content_with, _, status_with = fetch_url(test_url, cookies)
+            content_with, headers_with, status_with = fetch_url(test_url, cookies)
             if status_with != 200:
                 log("WARNING", f"Skipping {test_url}; non-200 status code: {status_with}")
                 continue
 
             log("INFO", f"Testing {test_url} (without cookies).")
-            content_without, _, status_without = fetch_url(test_url, {})
+            content_without, headers_without, status_without = fetch_url(test_url, {})
             if status_without != 200:
                 log("WARNING", f"Skipping {test_url}; non-200 status code: {status_without}")
                 continue
 
-            if content_with == content_without:
-                log("VULNERABILITY", f"Potential cache vulnerability detected for {test_url}.")
+            # 1) Must detect a cache HIT in at least one of the responses:
+            if not (is_hit(headers_with) or is_hit(headers_without)):
+                log("INFO", f"No cache HIT for {test_url}. No vulnerability.")
+                continue
+
+            # 2) Now either marker-based or size-based check:
+            marker_with = detect_markers(content_with, MARKERS)
+            marker_without = detect_markers(content_without, MARKERS)
+
+            if marker_with or marker_without:
+                # Marker-based => we want identical content
+                if content_with == content_without:
+                    log("VULNERABILITY", f"Potential cache vulnerability detected for {test_url} (marker-based).")
+                else:
+                    log("INFO", f"No cache vulnerability for {test_url} (marker mismatch).")
             else:
-                log("INFO", f"No cache vulnerability detected for {test_url}.")
+                # No markers => use size-based approach + identical check
+                if content_with == content_without and is_similar_size(base_content, content_with):
+                    log("VULNERABILITY", f"Potential cache vulnerability detected for {test_url} (size-based).")
+                else:
+                    log("INFO", f"No cache vulnerability for {test_url} (size-based check failed).")
 
     # Step 3 - Supplemental tests if normalization found any cache-hits
     if cache_hit_endpoints:
@@ -393,10 +437,9 @@ def test_cache_deception(
         if not domain:
             log("WARNING", f"Could not parse domain from {base_url}. Skipping.")
             return
-        test_supplemental_payloads(domain, original_path, cache_hit_endpoints, delimiters, cookies)
+        test_supplemental_payloads(domain, original_path, cache_hit_endpoints, delimiters, cookies, base_content)
     else:
         log("INFO", f"No normalization-based cache-hit endpoints for {base_url}. Skipping supplemental tests.")
-
 
 ###############################################################################
 # Main entry point
@@ -469,7 +512,6 @@ def main():
         # Graceful exit on Ctrl+C
         log("INFO", "User interrupted. Exiting script.")
         sys.exit(0)
-
 
 if __name__ == "__main__":
     main()
