@@ -31,7 +31,7 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 - Required Python packages:
   - `requests`
   - `termcolor`
-- Use the following browser to export your cookies to json
+- Use the following browser extension to export your cookies to json
   - https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm
  
  ---
@@ -55,6 +55,14 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 - **`--url <URL>`**  
   Base URL for normalization checks (required if `--normalize` or `--builtin-normalize` is used).
 
+### Required Files
+
+1. **`urls.txt`**  
+   A text file containing the list of URLs to test. Each URL should be on a new line. Lines starting with `#` are ignored as comments. Ensure this file is located in the same directory as the script.
+
+2. **`cookies.json`**  
+   A JSON file containing cookies for authenticated requests.
+   
   ---
 
 ## Tips
