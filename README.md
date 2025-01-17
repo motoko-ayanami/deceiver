@@ -1,4 +1,4 @@
-# Cache Deception Detection Script
+# Web Cache Deception Detection Script
 A lightweight, Python-based tool designed to detect potential cache deception vulnerabilities. This script automates checks against various endpoints, appending cache-busters, and probing for common weaknesses that could leave a website’s private content cached and publicly accessible.
 
 ---
