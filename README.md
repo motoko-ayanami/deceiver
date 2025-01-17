@@ -47,10 +47,10 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 - **`--advanced-extensions`**  
   Use an expanded set of file extensions.
 
-- **`--normalize`**  
-  Run normalization checks.
+- **`--custom`**  
+  Run normalization checks using `CUSTOM_NORMALIZE_ENDPOINTS`.
 
-- **`--builtin-normalize`**  
+- **`--builtin`**  
   Use the `BUILT_IN_NORMALIZE_ENDPOINTS` for normalization.
 
 - **`--help`**  
