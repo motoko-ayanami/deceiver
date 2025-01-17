@@ -61,7 +61,7 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 ### Required Files
 
 1. **`urls.txt`**  
-   A text file containing the list of URLs to test. Each URL should be on a new line. Lines starting with `#` are ignored as comments. Ensure this file is located in the same directory as the script.
+   This file lists the URLs to be tested for cache deception vulnerabilities. It is recommended to include URLs that might expose sensitive information, such as profile pages or other endpoints with private data. Potential targets could also include those exposing CSRF tokens, CSP nonces, or OAuth state parameters. Each URL must be listed on a separate line, and any line beginning with # will be treated as a comment and ignored during processing. Make sure urls.txt is stored in the same directory as the script.
 
 2. **`cookies.json`**  
    A JSON file containing cookies for authenticated requests. Ensure this file is located in the same directory as the script.
