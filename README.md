@@ -68,8 +68,7 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 
 ## Tips
 
-- **Try It on Burp Academy**
-  Test it on **PortSwigger’s [Web Cache Deception labs](https://portswigger.net/web-security/web-cache-deception)** available in the **Burp Academy**. This tool should be capable of helping you identify and solve **all** the labs in the cache deception category.
+- Test it on **PortSwigger’s [Web Cache Deception labs](https://portswigger.net/web-security/web-cache-deception)** available in the **Burp Academy**. This tool should be capable of helping you identify and solve **all** the labs in the cache deception category.
 
 ---
 
