@@ -31,6 +31,7 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 - Required Python packages:
   - `requests`
   - `termcolor`
+  - `tldextract`
 - Use the following browser extension to export your cookies to json
   - https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm
  
@@ -51,9 +52,6 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 
 - **`--builtin-normalize`**  
   Use the `BUILT_IN_NORMALIZE_ENDPOINTS` for normalization.
-
-- **`--url <URL>`**  
-  Base URL for normalization checks (required if `--normalize` or `--builtin-normalize` is used).
 
 - **`--help`**  
   Shows the help menu.
