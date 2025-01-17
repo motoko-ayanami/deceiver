@@ -5,6 +5,7 @@ import argparse
 import sys
 from typing import Dict, List, Tuple
 from urllib.parse import urlsplit, urlparse
+
 from termcolor import colored
 import tldextract
 
@@ -433,20 +434,17 @@ def main():
         parser = argparse.ArgumentParser(description="Cache Deception Detection Script")
         parser.add_argument("--advanced-delimiters", action="store_true", help="Use advanced delimiters for testing.")
         parser.add_argument("--advanced-extensions", action="store_true", help="Use advanced extensions for testing.")
-        parser.add_argument("--normalize", action="store_true", help="Run normalization checks using custom endpoints.")
         parser.add_argument(
-            "--builtin-normalize",
+            "--custom",
             action="store_true",
-            help="Use the built-in list of normalization endpoints."
+            help="Run normalization checks using custom endpoints defined in CUSTOM_NORMALIZE_ENDPOINTS."
         )
-        # REMOVED: --url argument and its help text
+        parser.add_argument(
+            "--builtin",
+            action="store_true",
+            help="Run normalization checks using built-in list of common endpoints."
+        )
         args = parser.parse_args()
-
-        # Decide which normalization endpoints to use
-        if args.builtin_normalize:
-            norm_endpoints = BUILT_IN_NORMALIZE_ENDPOINTS
-        else:
-            norm_endpoints = CUSTOM_NORMALIZE_ENDPOINTS
 
         # Delimiters + extensions
         delimiters = ADVANCED_DELIMITERS if args.advanced_delimiters else BASIC_DELIMITERS
@@ -471,12 +469,20 @@ def main():
             log("ERROR", f"No valid URLs found in '{INPUT_FILE}'.")
             return
 
-        # If normalization is turned on, we'll use the FIRST URL from urls.txt
-        # but sanitized.
+        # Handle normalization checks based on --custom or --builtin flags
         cache_hit_endpoints = []
-        if args.normalize:
+        if args.custom or args.builtin:
             first_url = urls[0]
             simplified_url = simplify_url(first_url)
+            
+            # Choose which endpoints to use based on flags
+            if args.custom:
+                norm_endpoints = CUSTOM_NORMALIZE_ENDPOINTS
+                log("INFO", "Using custom normalization endpoints")
+            else:  # args.builtin
+                norm_endpoints = BUILT_IN_NORMALIZE_ENDPOINTS
+                log("INFO", "Using built-in normalization endpoints")
+                
             cache_hit_endpoints = run_normalization_checks(simplified_url, norm_endpoints)
 
         # Process each URL
