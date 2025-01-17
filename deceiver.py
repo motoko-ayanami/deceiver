@@ -5,7 +5,6 @@ import argparse
 import sys
 from typing import Dict, List, Tuple
 from urllib.parse import urlsplit, urlparse
-
 from termcolor import colored
 import tldextract
 
@@ -30,7 +29,7 @@ COOKIE_FILE = "cookies.json"
 MARKERS = ["email"]
 
 # Custom Normalization endpoints
-CUSTOM_NORMALIZE_ENDPOINTS: List[str] = ["robots.txt"]
+CUSTOM_NORMALIZE_ENDPOINTS: List[str] = ["ENTER_CUSTOM_ENDPOINT_HERE"]
 
 # Extension sets
 BASIC_EXTENSIONS = ["js", "css", "ico"]
@@ -53,30 +52,14 @@ ADVANCED_DELIMITERS = [
 
 # Built in Normalization endpoints
 BUILT_IN_NORMALIZE_ENDPOINTS: List[str] = [
-    "404.html", "500.html", "about.html", "ads.txt", "android-chrome-192x192.png",
-    "android-chrome-512x512.png", "angular.min.js", "api-schema.json", "app.js",
-    "apple-touch-icon.png", "apple-touch-icon-precomposed.png", "asset-manifest.json",
-    "assets", "background.jpg", "background.mp3", "background.ogg", "background.png",
-    "background.webm", "backup.tar", "backup.tgz", "BingSiteAuth.xml", "bootstrap.min.css",
-    "browserconfig.xml", "chatbot.js", "contact.html", "crossdomain.xml", "data.tar.gz",
-    "data.tgz", "data.zip", "Dockerfile", ".dockerignore", ".env", "favicon-16x16.png",
-    "favicon-192x192.png", "favicon-32x32.png", "favicon-96x96.png", "favicon.ico",
-    "fb-pixel.js", "fontawesome-webfont.ttf", "fontawesome-webfont.woff",
-    "fontawesome-webfont.woff2", "font.css", "ga.js", ".gitignore",
-    "google-site-verification.html", "hero-banner.jpg", "home.html", ".htaccess",
-    "humans.txt", "image01.png", "image02.jpg", "index.htm", "index.html", "intercom.js",
-    "jquery.min.js", "jwks.json", "LICENSE.txt", "logo.png", "logo.svg", "main.css",
-    "main.js", "manifest.json", "media", "mstile-144x144.png", "mstile-150x150.png",
-    "mstile-310x150.png", "mstile-310x310.png", "mstile-70x70.png", "offline.html",
-    "offline-plugin-app-shell-fallback.html", "og-image.jpg", "open-graph-image.png",
-    "open-sans.ttf", "open-sans.woff", "open-sans.woff2", "paypal.js", "polyfill.js",
-    "precache-manifest.js", "precache-manifest.json", "print.css", "privatekey.pem",
-    "Procfile", "public", "publickey.pem", "react.min.js", "README.md", "resources",
-    "roboto.ttf", "roboto.woff", "roboto.woff2", "robots.txt", "script.js", "security.txt",
-    "segment.js", "service-worker.js", "shared", "site-backup.zip", "site-logo.webp",
-    "sitemap.xml", "site-verification.txt", "static", "stripe.js", "style.css",
-    "swagger.yaml", "sw.js", "theme.css", "twitter-card-image.png", "vendor.js",
-    "video.mp4", "vue.min.js", "webpack-runtime.js", "worker.js", "wp-content"
+    "404.html", "500.html", "about.html", "android-chrome-192x192.png",
+    "android-chrome-512x512.png", "app.js", "apple-touch-icon.png",
+    "asset-manifest.json", "favicon-16x16.png", "favicon-32x32.png", "favicon.ico",
+    "google-site-verification.html", "index.html", ".htaccess", "robots.txt",
+    "sitemap.xml", "style.css", "main.js", "manifest.json", "offline.html",
+    "service-worker.js", "shared", "static", "vendor.js", "theme.css",
+    "twitter-card-image.png", "og-image.jpg", "logo.png", "resources", "public",
+    "swagger.yaml", "stripe.js", "wp-content"
 ]
 
 ###############################################################################
