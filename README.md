@@ -55,13 +55,16 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 - **`--url <URL>`**  
   Base URL for normalization checks (required if `--normalize` or `--builtin-normalize` is used).
 
+- **`--help`**  
+  Shows the help menu.
+
 ### Required Files
 
 1. **`urls.txt`**  
    A text file containing the list of URLs to test. Each URL should be on a new line. Lines starting with `#` are ignored as comments. Ensure this file is located in the same directory as the script.
 
 2. **`cookies.json`**  
-   A JSON file containing cookies for authenticated requests.
+   A JSON file containing cookies for authenticated requests. Ensure this file is located in the same directory as the script.
    
   ---
 
