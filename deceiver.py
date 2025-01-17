@@ -4,9 +4,10 @@ import json
 import argparse
 import sys
 from typing import Dict, List, Tuple
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlparse
 
 from termcolor import colored
+import tldextract
 
 # GLOBAL Cache Buster Counter
 CB_COUNTER = 0  # Increments after each new payload
@@ -77,6 +78,27 @@ BUILT_IN_NORMALIZE_ENDPOINTS: List[str] = [
     "swagger.yaml", "sw.js", "theme.css", "twitter-card-image.png", "vendor.js",
     "video.mp4", "vue.min.js", "webpack-runtime.js", "worker.js", "wp-content"
 ]
+
+###############################################################################
+# Helper to simplify (sanitize) the URL
+###############################################################################
+def simplify_url(url: str) -> str:
+    """
+    Removes everything except the scheme, subdomain, domain, and TLD from the URL.
+    Example:
+      https://sub.example.com/some/path -> https://sub.example.com
+    """
+    parsed_url = urlparse(url)
+    scheme = parsed_url.scheme
+
+    extracted = tldextract.extract(parsed_url.netloc)
+    subdomain = f"{extracted.subdomain}." if extracted.subdomain else ""
+    domain = extracted.domain
+    suffix = extracted.suffix
+
+    # Reconstruct simplified URL
+    simplified_url = f"{scheme}://{subdomain}{domain}.{suffix}"
+    return simplified_url
 
 
 ###############################################################################
@@ -391,7 +413,7 @@ def main():
             action="store_true",
             help="Use the built-in list of normalization endpoints."
         )
-        parser.add_argument("--url", type=str, help="Base URL for normalization checks.")
+        # REMOVED: --url argument and its help text
         args = parser.parse_args()
 
         # Decide which normalization endpoints to use
@@ -403,14 +425,6 @@ def main():
         # Delimiters + extensions
         delimiters = ADVANCED_DELIMITERS if args.advanced_delimiters else BASIC_DELIMITERS
         extensions = ADVANCED_EXTENSIONS if args.advanced_extensions else BASIC_EXTENSIONS
-
-        # Possibly run normalization
-        cache_hit_endpoints = []
-        if args.normalize:
-            if not args.url:
-                log("ERROR", "--url must be provided with --normalize.")
-                return
-            cache_hit_endpoints = run_normalization_checks(args.url, norm_endpoints)
 
         log("INFO", "Starting cache deception detection...")
 
@@ -426,6 +440,18 @@ def main():
         except FileNotFoundError:
             log("ERROR", f"Input file '{INPUT_FILE}' not found.")
             return
+
+        if not urls:
+            log("ERROR", f"No valid URLs found in '{INPUT_FILE}'.")
+            return
+
+        # If normalization is turned on, we'll use the FIRST URL from urls.txt
+        # but sanitized.
+        cache_hit_endpoints = []
+        if args.normalize:
+            first_url = urls[0]
+            simplified_url = simplify_url(first_url)
+            cache_hit_endpoints = run_normalization_checks(simplified_url, norm_endpoints)
 
         # Process each URL
         for url in urls:
