@@ -6,7 +6,7 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 ## Features
 
 - **Automatically Detect Cache Rules**  
-  Fetches a list of commonly cached files and paths to see if they exist and are cached (`robots.txt`, `favicon.ico`).
+  Fetches a list of commonly cached files and paths to see if they exist and are cached (`robots.txt`, `favicon.ico`, etc).
   
 - **Detects Normalization Discrepancies**  
   Performs path normalization (`/../`) when a cached `file`/ `path` is detected.
