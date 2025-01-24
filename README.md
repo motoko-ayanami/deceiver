@@ -7,6 +7,9 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 
 - **Automatically Detect Cache Rules**  
   Automatically fetches a list of commonly cached files and paths to see if they exist and are cached (`robots.txt`, `favicon.ico`).
+  
+- **Detects Normalization Discrepancies**  
+  Automatically performs path normalization (`/../`) when a cached `file`/ `path` is detected.
 
 - **Delimiter + Extension Payloads**  
   Generates requests by inserting special delimiters (`;`, `/`, or `%00`) and file extensions (`.js`, `.css`, `.php`, etc.) to detect how caching layers respond under different URL structures.
@@ -54,10 +57,10 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
   Use an expanded set of file extensions (e.g., .zip, .rar, .json) for broader coverage.
 
 - **`--custom`**  
-  Turn on automatic file/path caching detection using a user supplied wordlist specified by the `CUSTOM_NORMALIZE_ENDPOINTS` variable.
+  Turn on automatic `file` / `path` caching detection using a user supplied wordlist specified by the `CUSTOM_NORMALIZE_ENDPOINTS` variable.
 
 - **`--builtin`**  
-  Turn on automatic file/path caching detection using the built in wordlist.
+  Turn on automatic `file` / `path` caching detection using the built in wordlist.
 
 - **`--help`**  
   Shows the help menu.
