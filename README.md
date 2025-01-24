@@ -6,16 +6,16 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 ## Features
 
 - **Automatically Detect Cache Rules**  
-  Automatically fetches a list of commonly cached files and paths to see if they exist and are cached.
+  Automatically fetches a list of commonly cached files and paths to see if they exist and are cached (`robots.txt`, `favicon.ico`).
 
 - **Delimiter + Extension Payloads**  
-  Generates requests by inserting special delimiters (like `;`, `/`, or `%00`) and file extensions (`.js`, `.css`, `.php`, etc.) to detect how caching layers respond under different URL structures.
+  Generates requests by inserting special delimiters (`;`, `/`, or `%00`) and file extensions (`.js`, `.css`, `.php`, etc.) to detect how caching layers respond under different URL structures.
 
 - **Cookie vs. No-Cookie Tests**  
   Compares responses with and without cookies to determine if private content could be cached and served to unauthenticated users.
 
 - **Marker Detection**  
-  Searches for predefined markers in the response body (e.g., `email`) to highlight potential exposure of sensitive data.
+  Searches for user supplied markers in the response body (e.g., `email`) to highlight potential exposure of sensitive data.
 
 ---
 
