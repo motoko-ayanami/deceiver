@@ -313,7 +313,7 @@ def test_supplemental_payloads(
     """
     domain = base_domain.rstrip("/")
     clean_path = original_path.lstrip("/")
-    special_payloads = ["..%2f", "%2f..%2f", "%2f%2e%2e%2f", "..%5c"]
+    special_payloads = ["..%2f", "%2f..%2f", "%2f%2e%2e%2f", "..%5c", "%2f..%5c"]
 
     for endpoint in cache_hit_endpoints:
         endpoint = endpoint.lstrip("/")
