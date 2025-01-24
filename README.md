@@ -14,7 +14,7 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 - **Cookie vs. No-Cookie Tests**  
   Compares responses with and without cookies to determine if private content could be cached and served to unauthenticated users.
 
-- **Markers Detection**  
+- **Marker Detection**  
   Searches for predefined markers in the response body (e.g., `email`) to highlight potential exposure of sensitive data.
 
 ---
@@ -25,6 +25,19 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
   - `requests`
   - `termcolor`
   - `tldextract`
+- For better organization and to avoid dependency conflicts, consider creating a virtual environment:
+
+  ```bash
+  # Create a virtual environment
+  python -m venv venv
+  
+  # Activate the virtual environment
+  # macOS/Linux
+  source venv/bin/activate
+  
+  # Windows
+  venv\Scripts\activate
+
 - Use the following browser extension to export your cookies to json
   - https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm
  
