@@ -83,3 +83,4 @@ A lightweight, Python-based tool designed to detect potential cache deception vu
 
 ## References
  - https://www.usenix.org/system/files/sec22summer_mirheidari.pdf
+ - https://portswigger.net/research/gotta-cache-em-all
